@@ -141,164 +141,74 @@ the diversity of kernel functions to improve both generalization and robustness 
 
 # Examples
 
-The `randomMachines` package provides a flexible and powerful ensemble modeling framework that 
-leverages the diversity of multiple kernel functions within Support Vector Machine (SVM) learners. 
-In this section, we provide examples illustrating the use of `randomMachines` in both regression and classification 
-settings. We also compare its performance with well-established machine learning techniques, namely Random Forests 
-and Neural Networks.
+To illustrate the typical workflow and expected outputs of *randomMachines*,
+we provide two reproducible experiments (one regression and one classification)
+implemented in the script `execute_examples.R`. The script also writes the
+numerical summaries to CSV files and saves the figures as PNG files in the
+`results/` directory.
 
-These examples demonstrate the functionality and predictive performance of the package using both real and synthetic 
-datasets. All experiments were carried out in R version 4.3 using the packages `randomMachines`, `randomForest`, 
-`neuralnet`, and `rsample`.
+Both experiments follow the same evaluation protocol. First, a dataset is
+resampled using 10 bootstrap splits created with `rsample::bootstraps()`. For
+each split, models are fitted using the bootstrap training set
+(`rsample::analysis()`) and evaluated on the corresponding holdout set
+(`rsample::assessment()`). Performance is summarized by the mean and standard
+deviation across splits. We emphasize that these examples are designed as a
+reproducible demonstration of usage (rather than an exhaustive benchmark), and
+that absolute performance will vary with preprocessing, tuning budget, and data
+subsampling choices.
 
-## Regression Task: Bolsa Família dataset
+## Regression task: Bolsa Família data
 
-The first example evaluates the predictive performance of `randomMachines` in a regression context using a subset 
-of the *Bolsa Família* dataset, which is included in the package. 
-The target variable is the usage rate of the Bolsa Família program across Brazilian municipalities.
+For regression, we use a subset of 1000 observations from the `bolsafam` data
+distributed with the package, where the response variable $y$ represents the
+usage rate of the Bolsa Família program across Brazilian municipalities. We
+compare *randomMachines*, Random Forest, and a feed-forward neural network. *randomMachines* is trained with
+$B = 25$ bootstrap samples and `cost = 1`; Random Forest
+is trained with `ntree = 25`; and the neural network uses two hidden layers
+(`hidden = c(5, 3)`) with linear output. Predictive performance is assessed with
+root mean squared error (RMSE) on the holdout set of each split.
 
-We compare the average RMSE across 10 bootstrap holdout resamples for three models:
+Table \autoref{tab:regression-results} reports the average RMSE and its
+variability across the 10 splits. Under this experimental setup,
+*randomMachines* obtains a slightly lower mean RMSE than Random Forest, while
+the neural network yields a substantially higher RMSE and larger variability.
 
-- `randomMachines` with custom hyperparameters,
-- `randomForest` with default parameters and 50 trees,
-- a feedforward Neural Network with two hidden layers.
+| Model            | RMSE (mean) | RMSE (sd) |
+|:-----------------|------------:|----------:|
+| Random Machines  | 0.01565     | 0.00070   |
+| Random Forest    | 0.01623     | 0.00075   |
+| Neural Network   | 0.03269     | 0.01019   |
 
-```{r regression-evaluation, message=FALSE, warning=FALSE}
-library(tidyverse)
-library(randomMachines)
-library(randomForest)
-library(rsample)
-library(neuralnet)
+Table: Regression results (mean and standard deviation of RMSE across 10
+bootstrap holdout resamples). {#tab:regression-results}
 
-# Sample 1000 observations for evaluation
-dados_bolsafam <- bolsafam %>% sample_n(1000) %>% as.data.frame()
-bsamples <- bootstraps(dados_bolsafam, times = 10)
+![RMSE distribution across bootstrap holdout resamples for the Bolsa Família
+regression task. For readability, the figure shows *randomMachines* and Random
+Forest; the neural network results are reported in
+\autoref{tab:regression-results}.](results/regression_boxplot.png){#fig:rmse-bolsafam}
 
-# Random Machines
-rm_resultados <- map_dbl(bsamples$splits, function(split) {
-  mod <- randomMachines(
-    y ~ .,
-    train = analysis(split),
-    B = 50,
-    cost = 10,
-    beta = 0.5
-  )
-  pred <- predict(mod, assessment(split))
-  sqrt(mean((assessment(split)$y - pred)^2))
-})
+## Classification task: Ionosphere radar data
 
-# Random Forest
-rf_resultados <- map_dbl(bsamples$splits, function(split) {
-  mod <- randomForest(y ~ ., data = analysis(split), ntree = 50)
-  pred <- predict(mod, assessment(split))
-  sqrt(mean((assessment(split)$y - pred)^2))
-})
+For classification, we evaluate *randomMachines* on the `ionosphere` dataset, a
+binary classification benchmark with a nonlinear decision boundary. We compare
+*randomMachines* and Random Forest across the same 10 bootstrap holdout splits,
+using accuracy on the holdout set as the performance metric. The configuration uses $B = 50$ base learners with `cost = 1` and
+`prob_model = FALSE` for *randomMachines*, and `ntree = 50` for Random Forest.
 
-# Neural Network
-nn_resultados <- map_dbl(bsamples$splits, function(split) {
-  mod <- neuralnet(
-    y ~ . - REGIAO - COD_UF,
-    data = analysis(split),
-    hidden = c(5, 3),
-    linear.output = TRUE
-  )
-  pred <- predict(mod, assessment(split))
-  sqrt(mean((assessment(split)$y - pred)^2))
-})
+Table \autoref{tab:classification-results} summarizes the mean and standard
+deviation of the accuracy values across splits. In this run, *randomMachines* attains a
+slightly higher mean accuracy than Random Forest, with comparable variability.
 
-# Summary
-tibble(
-  model = c("Random Machines", "Random Forest", "Neural Network"),
-  RMSE_mean = c(mean(rm_resultados), mean(rf_resultados), mean(nn_resultados)),
-  RMSE_sd = c(sd(rm_resultados), sd(rf_resultados), sd(nn_resultados))
-)
-```
+| Model           | Accuracy (mean) | Accuracy (sd) |
+|:----------------|----------------:|--------------:|
+| Random Machines | 0.93813         | 0.02095       |
+| Random Forest   | 0.92818         | 0.01738       |
 
-To better visualize the variability and overall distribution of model performance, 
-we produce a boxplot comparing RMSE across the bootstrap resamples:
+Table: Classification results (mean and standard deviation of accuracy across
+10 bootstrap holdout resamples). {#tab:classification-results}
 
-```{r regression-boxplot, message=FALSE, warning=FALSE}
-# Boxplot
-resultados_comparacao <- tibble(
-  model = rep(c("Random Machines", "Random Forest", "Neural Network"), each = length(rm_resultados)),
-  RMSE = c(rm_resultados, rf_resultados, nn_resultados)
-)
-
-ggplot(resultados_comparacao, aes(x = model, y = RMSE)) +
-  geom_boxplot() +
-  labs(title = "RMSE Comparison across Bootstrap Resamples",
-       x = "Model",
-       y = "Root Mean Squared Error (RMSE)") +
-  theme_minimal()
-```
-
-The results show that `randomMachines` achieves slightly higher RMSE and across 
-resamples compared to Random Forest, demonstrating its robustness and competitive 
-predictive capability for continuous outcomes.
-
-## Classification Task: Ionosphere radar data
-
-In the second example, we assess `randomMachines` in a binary classification task using the well-known `ionosphere` 
-dataset, which contains radar returns labeled as "good" or "bad". 
-This dataset is suitable for evaluating non-linear classification algorithms due to its complex decision boundary.
-
-Again, we compare `randomMachines` and `randomForest` across 10 bootstrap holdout resamples, 
-computing classification accuracy in each iteration.
-
-```{r classification-evaluation, message=FALSE, warning=FALSE}
-data(ionosphere)
-bsamples_simulados <- bootstraps(ionosphere, times = 10)
-
-# Random Machines
-rm_resultados_simulados <- map_dbl(bsamples_simulados$splits, function(split) {
-  mod <- randomMachines(
-    y ~ .,
-    train = analysis(split),
-    B = 50,
-    cost = 1,
-    prob_model = FALSE
-  )
-  pred <- predict(mod, assessment(split))
-  mean(pred == assessment(split)$y)
-})
-
-# Random Forest
-rf_resultados_simulados <- map_dbl(bsamples_simulados$splits, function(split) {
-  mod <- randomForest(y ~ ., data = analysis(split), ntree = 50)
-  pred <- predict(mod, assessment(split))
-  mean(pred == assessment(split)$y)
-})
-
-# Summary
-tibble(
-  model = c("Random Machines", "Random Forest"),
-  Accuracy_mean = c(mean(rm_resultados_simulados), mean(rf_resultados_simulados)),
-  Accuracy_sd = c(sd(rm_resultados_simulados), sd(rf_resultados_simulados))
-)
-```
-
-We also visualize classification accuracy across bootstrap splits using a boxplot:
-
-```{r classification-boxplot, message=FALSE, warning=FALSE}
-# Boxplot
-resultados_comparacao_simulados <- tibble(
-  model = rep(c("Random Machines", "Random Forest"), each = length(rm_resultados_simulados)),
-  Accuracy = c(rm_resultados_simulados, rf_resultados_simulados)
-)
-
-ggplot(resultados_comparacao_simulados, aes(x = model, y = Accuracy)) +
-  geom_boxplot() +
-  labs(title = "Classification Accuracy across Bootstrap Resamples",
-       x = "Model",
-       y = "Accuracy") +
-  theme_minimal()
-```
-
-The classification results again highlight the advantages of `randomMachines`. 
-It achieves close average accuracy when compared to the standard Random Forest implementation. 
-These examples demonstrate how `randomMachines` offers a competitive, flexible, 
-and interpretable approach for both regression and classification tasks, especially in complex 
-scenarios where leveraging multiple kernels enhances model diversity and predictive strength.
+![Classification accuracy across bootstrap holdout resamples for the ionosphere
+task comparing *randomMachines* and Random Forest.](results/classification_boxplot.png){#fig:acc-ionosphere}
 
 # Citations
 
