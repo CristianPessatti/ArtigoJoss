@@ -23,21 +23,21 @@ editor_options:
 
 # Summary
 
-The forces on stars, galaxies, and dark matter under external
-gravitational fields lead to the dynamical evolution of structures in
-the universe. The orbits of these bodies are therefore key to
-understanding the formation, history, and future state of galaxies. The
-field of "galactic dynamics," which aims to model the gravitating
-components of galaxies to study their structure and evolution, is now
-well-established, commonly taught, and frequently used in astronomy.
-Aside from toy problems and demonstrations, the majority of problems
-require efficient numerical tools, many of which require the same base
-code (e.g., for performing numerical orbit integration).
+*randomMachines* is an R package that implements a flexible ensemble
+strategy for support vector machines (SVMs) [@cortes1995svm] in both classification and
+regression settings. The method combines bagging with diversity induced
+by multiple kernel functions (e.g., Gaussian, polynomial, Laplacian, and
+linear), combining base learners to capture heterogeneous nonlinear
+structures in the data. Individual models are trained on bootstrap
+samples and aggregated with performance-based weights derived from
+out-of-bag evaluation, yielding an ensemble with improved
+robustness and competitive predictive performance relative to common
+baselines [@ara2021randommachines; @ara2022regressionrandommachines].
 
 # Statement of need
 
 The *randomMachines* package introduces an ensemble methodology,
-employing Support Vector Machines (SVM) as base learners combined with
+employing Support Vector Machines (SVM) [@cortes1995svm] as base learners combined with
 diverse kernel functions in a bagging structure. This software is
 designed to address specific limitations in ensemble modeling,
 particularly around flexibility and predictive power in both
@@ -61,8 +61,8 @@ introduces a weighted, bagged model that adapts dynamically to data
 characteristics. Its implementation builds upon recent research
 advancements in ensemble support vector models, specifically those
 demonstrating that diverse kernel ensembles can lead to significant
-improvements in predictive performance (Ara et al., 2021; Maia et al.,
-2021). This approach has shown promise in domains requiring complex
+improvements in predictive performance
+[@ara2021randommachines; @ara2022regressionrandommachines]. This approach has shown promise in domains requiring complex
 predictive power, such as bioinformatics, image classification, and
 financial forecasting, where interactions and non-linearities are
 prevalent.
@@ -77,7 +77,8 @@ across a range of scientific and applied disciplines.
 Let $\{(x_i, y_i)\}_{i=1}^{n}$ be a training dataset where $x_i \in \mathbb{R}^p$ represents the 
 feature vector and $y_i$ is the target variable, which can be either categorical ($y_i \in \{-1,1\}$ 
 for classification) or continuous ($y_i \in \mathbb{R}$ for regression). The *randomMachines* 
-method follows a bagging-based approach, incorporating a probabilistic selection of kernel functions 
+method follows a bagging-based approach
+[@ara2021randommachines; @ara2022regressionrandommachines], incorporating a probabilistic selection of kernel functions 
 to enhance model diversity and predictive power.
 
 Given a predefined set of $R$ kernel functions $\{K_r(x, x')\}_{r=1}^{R}$, individual models $h_r(x)$ 
