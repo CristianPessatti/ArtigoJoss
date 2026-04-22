@@ -79,7 +79,7 @@ and practitioners seeking enhanced flexibility and performance in
 ensemble modeling, expanding the applicability of SVM-based techniques
 across a range of scientific and applied disciplines.
 
-Recently, Random Machines has been employed by several authors in both theoretical developments and applied studies [@gonccalves2023regression,@tikaria2025characterization, @yucost].
+Recently, Random Machines has been employed by several authors in both theoretical developments and applied studies [@gonccalves2023regression;@tikaria2025characterization; @yucost].
 
 ## Statistical background
 
@@ -89,7 +89,7 @@ for classification) or continuous ($y_i \in \mathbb{R}$ for regression). The *ra
 method follows a structured bagging-based approach, incorporating a probabilistic selection of kernel functions 
 to increase model diversity and consequently the predictive performance.
 
-Given a predefined set of $R$ kernel functions $\{K_r(\mathbf{x}, \mathbf{x}')\}_{r=1}^{R}$, individual models $h_r(\mathbf{x})$ 
+Given a predefined set of $R$ kernel functions $\{K_r(\mathbf{x}_i, \mathbf{x}_j)\}_{r=1}^{R}$, individual models $h_r(\mathbf{x})$ 
 are trained on a validation set. The probability of selecting each kernel is computed differently for 
 classification and regression.
 
@@ -105,7 +105,7 @@ $$
 \lambda_r = \frac{e^{-\beta \delta_r}}{\sum_{j=1}^{R} e^{-\beta \delta_j}}
 $$
 
-where $\delta_r$ is the standardized $P$ of each kernel-based model, and $\beta$ is a regularization 
+where $\delta_r$ is the standardized $Q$ of each kernel-based model, and $\beta$ is a regularization 
 parameter controlling the degree of penalization of kernels with higher error over the validation set.
 
 For both classification and regression, $B$ bootstrap samples are drawn from the original training data. 
