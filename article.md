@@ -83,14 +83,14 @@ Recently, Random Machines has been employed by several authors in both theoretic
 
 ## Statistical background
 
-Let $\{(\mathbf{x}_i, y_i)\}_{i=1}^{n}$ be a training dataset where $\mathbf{x}_i \in \mathbb{R}^p$ represents the 
+Let $\{(\mathbf{x}_i, y_i)\}_{i=1}^{n}$ be a training sample where $\mathbf{x}_i \in \mathbb{R}^p$ represents the 
 input vector and $y_i$ is the target variable, which can be either categorical ($y_i \in \{-1,1\}$ 
 for classification) or continuous ($y_i \in \mathbb{R}$ for regression). The *randomMachines* 
 method follows a structured bagging-based approach, incorporating a probabilistic selection of kernel functions 
 to increase model diversity and consequently the predictive performance.
 
 Given a predefined set of $R$ kernel functions $\{K_r(\mathbf{x}_i, \mathbf{x}_j)\}_{r=1}^{R}$, individual models $h_r(\mathbf{x})$ 
-are trained on a validation set. The probability of selecting each kernel is computed differently for 
+are trained with a cross-validation procedure on the training sample. The probability of selecting each kernel is computed differently for 
 classification and regression.
 
 For classification, the model selection probability $\lambda_r$ is determined based on a performance measure $0 \le P \le 1$, when $P=0.5$ indicates a random prediction:
