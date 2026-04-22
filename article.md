@@ -93,19 +93,27 @@ Given a predefined set of $R$ kernel functions $\{K_r(\mathbf{x}_i, \mathbf{x}_j
 are trained with a cross-validation procedure on the training sample. The probability of selecting each kernel is computed differently for 
 classification and regression.
 
-For classification, the model selection probability $\lambda_r$ is determined based on a performance measure $0 \le P \le 1$, when $P=0.5$ indicates a random prediction:
+For classification, the model selection probability $\lambda_r$ is defined from a performance measure $P_r \in [0,1]$, where $P_r = 0.5$ corresponds to random prediction. Since the logit transformation is not defined for $P_r = 0$ or $P_r = 1$, we use the truncated value
+$$
+P_r^* = \min\{1 - \varepsilon,\ \max(\varepsilon, P_r)\},
+$$
+with a small $\varepsilon > 0$, and compute:
 
-$$\lambda_r = \frac{\log\left(\frac{\text{P}_r}{1 - \text{P}_r}\right)}{\sum_{i=1}^{R} \log\left(\frac{\text{P}_i}{1 - \text{P}_i}\right)}$$
+$$\lambda_r =
+\frac{
+\log\left(\dfrac{P_r^*}{1 - P_r^*}\right)
+}{
+\sum_{i=1}^{R}
+\log\left(\dfrac{P_i^*}{1 - P_i^*}\right)
+}.$$
 
 where $\text{P}_r$ represents the performance measure of model $h_r(\mathbf{x})$.
 
-For regression, the probability of selecting each kernel is determined using a performance measure $Q \ge 0$, when $Q=0$ indicates a perfect prediction:
-
+For regression, the model selection probability $\lambda_r$ is defined from a non-negative performance measure $Q_r \ge 0$, where $Q_r = 0$ corresponds to a perfect prediction:
 $$
-\lambda_r = \frac{e^{-\beta \delta_r}}{\sum_{j=1}^{R} e^{-\beta \delta_j}}
+\lambda_r = \frac{e^{-\beta \delta_r}}{\sum_{j=1}^{R} e^{-\beta \delta_j}},
 $$
-
-where $\delta_r$ is the standardized $Q$ of each kernel-based model, and $\beta$ is a regularization 
+where $\delta_r$ is the standardized $Q$ of each kernel-based model, and $\beta > 0$ is a regularization 
 parameter controlling the degree of penalization of kernels with higher error over the validation set.
 
 For both classification and regression, $B$ bootstrap samples are drawn from the original training data. 
