@@ -225,4 +225,16 @@ Table: Table 2. Classification results (mean and standard deviation of accuracy 
   </figcaption>
 </figure>
 
+# AI usage disclosure
+
+Generative AI was used in a limited way during the preparation of this
+submission for copy-editing and improving the clarity, grammar, and
+overall readability of the paper text. The assistance was
+provided through the GPT-5.4 model.
+
+All AI-assisted text was reviewed, edited, and validated by the human
+authors, who remain fully responsible for the accuracy, originality,
+licensing, and ethical and legal compliance of the submitted materials.
+The authors made all core research, software, and writing decisions.
+
 # References
