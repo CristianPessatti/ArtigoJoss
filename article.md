@@ -74,7 +74,7 @@ improvements in predictive performance
 [@maia2021predictive; @ara2022regressionrandommachines]. This approach has shown strong performance indicating high predictive accuracy in domains where complex interactions and non-linear relationships are prevalent, such as bioinformatics, image classification, and
 financial forecasting.
 
-Because the model is a method-specific ensemble framework rather than an incremental extension to a single existing SVM package, implementing it as a dedicated package was the most direct way to provide a stable, reproducible, and research-ready interface. Wich makes *randomMachines* emerge as an effective tool for researchers
+Because the model is a method-specific ensemble framework rather than an incremental extension to a single existing SVM package, implementing it as a dedicated package was the most direct way to provide a stable, reproducible, and research-ready interface. Which makes *randomMachines* emerge as an effective tool for researchers
 and practitioners seeking enhanced flexibility and performance in
 ensemble modeling, expanding the applicability of SVM-based techniques
 across a range of scientific and applied disciplines.
